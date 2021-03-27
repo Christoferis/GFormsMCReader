@@ -1,4 +1,4 @@
-#Reader for CSV Files, specifically for the MC All Stars and Titan Projects
+#Reader and Writer between  CSV and Json Files, specifically for the MC All Stars and Titan Projects
 #Christoferis c 2021
 
 #Notes:
@@ -131,7 +131,7 @@ def csv_to_dict():
     for row in csvobj:
         #dont include first row (questions)
         if iter != 0:
-            participants[row[1]] = [row[2], row[3]]
+            participants[row[1].replace(" ", "")] = [row[2], row[3]]
         else:
             iter += 1 
             pass
