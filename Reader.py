@@ -4,14 +4,11 @@
 
 #Notes:
 #Duplicates (Server) and Name herausfischen
-#whitelist syntax
 #second script for looking up the MC Username and infos
-#add in 8 Player barrier
 
 
 #Imports
 import csv
-from typing import Type
 import mojang as mj
 import json
 
@@ -44,13 +41,15 @@ def uuid_formatter(uuid):
     return final
 
 
-def whitelist():
+def whitelist_and_participants():
     global participants
     global whitelist_path
+    global max_players
 
     #open whitelist
     openobj = open(whitelist_path, mode='w')
     saveobj = list()
+    delete_entries = list()
 
     #get minecraft names and uuids
 
@@ -64,13 +63,43 @@ def whitelist():
             "name": data[0],
         }
 
-        #failsafe pt 2
+        #failsafe pt 2, false minecraft name = invalid
         if container["uuid"] != None:
             saveobj.append(container)
 
+        else:
+            #append and delete later
+            delete_entries.append(player)
+
+    #delete invalid entries
+    for delete in delete_entries:
+        del participants[delete]
+
+
+    #8 player limit : whitelist
+    for place in range(len(saveobj) - 1):
+        if place + 1 >= max_players:
+            print(saveobj.pop(place))
+
+    #8 player limit : participants
+    iter = 0
+    delete_entries = list()
+    for player in participants:
+
+        if iter >= max_players:
+            delete_entries.append(player)
+
+        iter += 1
+
+    for delete in delete_entries:
+        del participants[delete]
+
+
         
     #dump json in file
-    json.dump(fp=openobj, obj=saveobj)
+    openobj.write(json.dumps(saveobj, indent=4))
+
+    print("changed whitelist")
     openobj.close()
     pass
 
@@ -82,7 +111,6 @@ def save_json():
 def csv_to_dict():
     global csvpath
     global participants
-    global max_players
 
     openobj = open(csvpath, newline='', mode='r')
 
@@ -95,12 +123,11 @@ def csv_to_dict():
         #dont include first row (questions)
         if iter != 0:
             participants[row[1]] = [row[2], row[3]]
-        #only 8 participants
-        elif iter == max_players:
-            break
         else:
             iter += 1 
             pass
+
+    print("converted csv to dict")
 
 
 def main():
@@ -110,7 +137,7 @@ def main():
     csv_to_dict()
 
     #construct whitelist
-    whitelist()
+    whitelist_and_participants()
 
 
 main()
