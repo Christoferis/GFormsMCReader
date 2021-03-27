@@ -1,6 +1,5 @@
 #Reader for CSV Files, specifically for the MC All Stars and Titan Projects
-#Collums in question: B, C, D
-# 2 and down
+#Christoferis c 2021
 
 #Notes:
 #Duplicates (Server) and Name herausfischen
@@ -11,6 +10,7 @@
 import csv
 import mojang as mj
 import json
+import time
 
 
 #Variables
@@ -19,6 +19,7 @@ max_players = 8
 csvpath = "The Factory All-Stars (Minecraft Event).csv"
 whitelist_path = "whitelist.json"
 participants = dict()
+participant_path = "participant_data.json"
 
 
 #format mc uuid to the 8-4-4-4-12 format
@@ -52,7 +53,6 @@ def whitelist_and_participants():
     delete_entries = list()
 
     #get minecraft names and uuids
-
     for player in participants:
         #get the user entry
         data = participants[player]
@@ -75,11 +75,10 @@ def whitelist_and_participants():
     for delete in delete_entries:
         del participants[delete]
 
-
     #8 player limit : whitelist
     for place in range(len(saveobj) - 1):
         if place + 1 >= max_players:
-            print(saveobj.pop(place))
+            del saveobj[place]
 
     #8 player limit : participants
     iter = 0
@@ -94,8 +93,8 @@ def whitelist_and_participants():
     for delete in delete_entries:
         del participants[delete]
 
+    print("Player cap added")
 
-        
     #dump json in file
     openobj.write(json.dumps(saveobj, indent=4))
 
@@ -103,8 +102,18 @@ def whitelist_and_participants():
     openobj.close()
     pass
 
-
+#json serialization of final info of all contestants 
 def save_json():
+    global participant_path
+    global participants
+
+    #open the data file and dump the dict in there
+    openobj = open(participant_path, mode="w")
+
+    openobj.write(json.dumps(participants, indent=4))
+
+    openobj.close()
+    
     pass
 
 
@@ -139,7 +148,15 @@ def main():
     #construct whitelist
     whitelist_and_participants()
 
+    #save final participation list
+    save_json()
 
+    print("done")
+
+    print("terminate in 5 secs")
+    time.sleep(5)
+
+
+#execute main function
 main()
-
 
