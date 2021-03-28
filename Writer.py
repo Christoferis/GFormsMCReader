@@ -1,9 +1,6 @@
 #Reader and Writer between  CSV and Json Files, specifically for the MC All Stars and Titan Projects
 #Christoferis c 2021
 
-#Notes:
-#Duplicates (Server) and Name herausfischen
-#second script for looking up the MC Username and infos
 
 
 #Imports
@@ -11,6 +8,7 @@ import csv
 import mojang as mj
 import json
 import time
+import random
 
 
 #Variables
@@ -50,48 +48,42 @@ def whitelist_and_participants():
     #open whitelist
     openobj = open(whitelist_path, mode='w')
     saveobj = list()
-    delete_entries = list()
+    all_players = list()
 
-    #get minecraft names and uuids
+    #get all users and compile a list
     for player in participants:
-        #get the user entry
+        all_players.append(player)
+
+    final_participants = dict()
+
+    #make it as long as finalparticipants isnt 8 in length + uuid check
+
+
+    while True:
+        player = random.choice(all_players)
+
         data = participants[player]
 
-        #create whitelist container for every person
+        #create mc entry
         container = {
             "uuid": uuid_formatter(mj.MojangAPI.get_uuid(data[0])),
             "name": data[0],
         }
 
-        #failsafe pt 2, false minecraft name = invalid
-        if container["uuid"] != None:
+        #check if mc account exists and if player isnt already in list
+        if player not in final_participants and container["uuid"] != None:
             saveobj.append(container)
+            final_participants[player] = participants[player]
 
-        else:
-            #append and delete later
-            delete_entries.append(player)
+        #check if finalparticipants already 8
+        if len(final_participants) == 8:
+            #make final participants list all pariticipant list and exit
+            participants = final_participants
+            break
 
-    #delete invalid entries
-    for delete in delete_entries:
-        del participants[delete]
 
-    #8 player limit : whitelist
-    for place in range(len(saveobj) - 1):
-        if place + 1 >= max_players:
-            del saveobj[place]
+    #get minecraft names and uuids
 
-    #8 player limit : participants
-    iter = 0
-    delete_entries = list()
-    for player in participants:
-
-        if iter >= max_players:
-            delete_entries.append(player)
-
-        iter += 1
-
-    for delete in delete_entries:
-        del participants[delete]
 
     print("Player cap added")
 
@@ -153,8 +145,8 @@ def main():
 
     print("done")
 
-    print("terminate in 5 secs")
-    time.sleep(5)
+    print("terminate in 1 sec")
+    time.sleep(1)
 
 
 #execute main function

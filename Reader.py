@@ -1,9 +1,10 @@
-#
+#A simple search program for the Writer script
 
+#imports
 import json
 import time
-#vars
 
+#vars
 participant_path = "participant_data.json"
 user_data = None
 
@@ -66,12 +67,19 @@ def main():
         output = get_data_mcuser(argument=argument.replace("mc ", ""))
         print(output)
 
+    #show everything
+    elif not argument.find("all"):
+        global user_data
+
+        for user in user_data:
+            print(user + " : " + str(user_data[user]) + "\n")
+
     elif not argument.find("exit"):
 
         print("exiting...")
         time.sleep(1)
         exit()
-
+    
     else:
 
         print("No argument found")
